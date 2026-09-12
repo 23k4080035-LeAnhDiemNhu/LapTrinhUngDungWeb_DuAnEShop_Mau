@@ -1,0 +1,28 @@
+# Visual Studio & .NET Build Outputs
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+.vs/
+.vscode/
+*.user
+*.userprefs
+*.suo
+*.sln.docstates
+
+# Sensitive configuration files (Uncomment if needed)
+# appsettings.Development.json
+
+# Operating System Files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
+
+# Large Media Files (GitHub limit is 100MB per file)
+# The Lecture Videos folder contains MP4 files > 100MB which GitHub will reject without Git LFS.
+*.mp4
+*.mkv
+*.avi
+*.mov

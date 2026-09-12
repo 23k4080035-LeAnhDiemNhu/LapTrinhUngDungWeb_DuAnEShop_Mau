@@ -1,0 +1,4 @@
+Tạo một page và một loạt các components con (3 tầng sâu)
+=> Vận dụng Parameters để truyền dữ liệu từ cha sang con
+=> Vận dụng EventCallback để truyền dữ liệu từ con sang cha.
+=> Vận dụng Routing Parameter để đi đến một trang mong muốn

@@ -1,0 +1,20 @@
+﻿@page "/"
+
+<h1>Hello, World</h1>
+Welcome to your new app.
+
+Product Name: @product.Name
+<br />
+<input type="text" @bind-value="product.Name"/>
+<br />
+
+
+
+
+@code
+{
+	private Product product = new Product
+	{
+	 Id = 439, Brand = "maybelline", Name = "Maybelline Fit Me Blush", Price = 10.29, ImageLink = "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=500" 
+	};
+}

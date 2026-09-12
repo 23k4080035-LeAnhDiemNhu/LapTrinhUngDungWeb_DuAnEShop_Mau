@@ -1,0 +1,210 @@
+@page "/weather"
+@rendermode InteractiveServer
+
+<PageTitle>Dự Báo Thời Tiết - Blazor .NET 9</PageTitle>
+
+<div class="animate-fade-in">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+        <div>
+            <h2 class="fw-bold text-light mb-1">Dự Báo Thời Tiết</h2>
+            <p class="text-secondary mb-0">Dữ liệu mô phỏng thời tiết thời gian thực với Server Side rendering.</p>
+        </div>
+        <button class="btn btn-gradient-primary d-flex align-items-center gap-2" @onclick="RefreshData" disabled="@isLoading">
+            @if (isLoading)
+            {
+                <span class="spinner-border spinner-border-sm" role="status"></span>
+                <span>Đang tải...</span>
+            }
+            else
+            {
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
+                    <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
+                </svg>
+                <span>Làm Mới Dữ Liệu</span>
+            }
+        </button>
+    </div>
+
+    <!-- Summary Metrics Cards -->
+    @if (forecasts != null && forecasts.Length > 0)
+    {
+        <div class="row g-3 mb-4">
+            <div class="col-md-3">
+                <div class="glass-panel p-3">
+                    <span class="text-secondary small">Nhiệt độ TB</span>
+                    <div class="fs-3 fw-bold text-light mt-1">@AvgTemp °C</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="glass-panel p-3">
+                    <span class="text-secondary small">Cao nhất</span>
+                    <div class="fs-3 fw-bold text-gradient mt-1">@MaxTemp °C</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="glass-panel p-3">
+                    <span class="text-secondary small">Thấp nhất</span>
+                    <div class="fs-3 fw-bold text-gradient-cyan mt-1">@MinTemp °C</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="glass-panel p-3">
+                    <span class="text-secondary small">Tổng số ngày</span>
+                    <div class="fs-3 fw-bold text-light mt-1">@forecasts.Length ngày</div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Search & Filter Controls -->
+    <div class="glass-panel p-4 mb-4">
+        <div class="row g-3 align-items-center">
+            <div class="col-md-6">
+                <input type="text" class="form-control form-input-dark w-100" placeholder="🔍 Tìm kiếm theo trạng thái thời tiết..." @bind="searchTerm" @bind:event="oninput" />
+            </div>
+            <div class="col-md-6 d-flex justify-content-md-end gap-2">
+                <button class="btn btn-sm @(selectedFilter == "All" ? "btn-gradient-primary" : "btn-glass")" @onclick='() => FilterSummary("All")'>Tất cả</button>
+                <button class="btn btn-sm @(selectedFilter == "Cold" ? "btn-gradient-primary" : "btn-glass")" @onclick='() => FilterSummary("Cold")'>Lạnh (&lt; 15°C)</button>
+                <button class="btn btn-sm @(selectedFilter == "Mild" ? "btn-gradient-primary" : "btn-glass")" @onclick='() => FilterSummary("Mild")'>Ôn hòa (15-30°C)</button>
+                <button class="btn btn-sm @(selectedFilter == "Hot" ? "btn-gradient-primary" : "btn-glass")" @onclick='() => FilterSummary("Hot")'>Nóng (&gt; 30°C)</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Data Table -->
+    <div class="glass-panel p-3">
+        @if (isLoading)
+        {
+            <div class="text-center py-5">
+                <div class="spinner-border text-primary mb-2" style="width: 3rem; height: 3rem;" role="status"></div>
+                <p class="text-secondary">Đang cập nhật danh sách dự báo...</p>
+            </div>
+        }
+        else if (FilteredForecasts == null || !FilteredForecasts.Any())
+        {
+            <div class="text-center py-5 text-secondary">
+                <p class="mb-0">Không tìm thấy dữ liệu thời tiết phù hợp với điều kiện lọc.</p>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table-custom">
+                    <thead>
+                        <tr>
+                            <th>Ngày Dự Báo</th>
+                            <th>Nhiệt Độ (°C)</th>
+                            <th>Nhiệt Độ (°F)</th>
+                            <th>Trạng Thái</th>
+                            <th>Đánh Giá</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var forecast in FilteredForecasts)
+                        {
+                            <tr>
+                                <td class="fw-semibold text-light">@forecast.Date.ToString("dd/MM/yyyy (ddd)")</td>
+                                <td class="fw-bold fs-5">@forecast.TemperatureC °C</td>
+                                <td class="text-secondary">@forecast.TemperatureF °F</td>
+                                <td>
+                                    <span class="text-light fw-medium">@forecast.Summary</span>
+                                </td>
+                                <td>
+                                    @if (forecast.TemperatureC < 15)
+                                    {
+                                        <span class="badge-custom badge-cold">❄️ Lạnh Giá</span>
+                                    }
+                                    else if (forecast.TemperatureC <= 30)
+                                    {
+                                        <span class="badge-custom badge-mild">🍃 Dễ Chịu</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge-custom badge-hot">🔥 Nóng Ống</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    private WeatherForecast[]? forecasts;
+    private bool isLoading = false;
+    private string searchTerm = "";
+    private string selectedFilter = "All";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDataAsync();
+    }
+
+    private async Task RefreshData()
+    {
+        await LoadDataAsync();
+    }
+
+    private async Task LoadDataAsync()
+    {
+        isLoading = true;
+        await Task.Delay(400); // Simulate network load
+
+        var startDate = DateOnly.FromDateTime(DateTime.Now);
+        var summaries = new[] { "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching" };
+        forecasts = Enumerable.Range(1, 10).Select(index => new WeatherForecast
+        {
+            Date = startDate.AddDays(index),
+            TemperatureC = Random.Shared.Next(-10, 45),
+            Summary = summaries[Random.Shared.Next(summaries.Length)]
+        }).ToArray();
+
+        isLoading = false;
+    }
+
+    private void FilterSummary(string filter)
+    {
+        selectedFilter = filter;
+    }
+
+    private IEnumerable<WeatherForecast> FilteredForecasts
+    {
+        get
+        {
+            if (forecasts == null) return Enumerable.Empty<WeatherForecast>();
+
+            var query = forecasts.AsEnumerable();
+
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                query = query.Where(f => (f.Summary != null && f.Summary.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) ||
+                                         f.Date.ToString().Contains(searchTerm));
+            }
+
+            if (selectedFilter == "Cold")
+                query = query.Where(f => f.TemperatureC < 15);
+            else if (selectedFilter == "Mild")
+                query = query.Where(f => f.TemperatureC >= 15 && f.TemperatureC <= 30);
+            else if (selectedFilter == "Hot")
+                query = query.Where(f => f.TemperatureC > 30);
+
+            return query;
+        }
+    }
+
+    private int AvgTemp => forecasts != null && forecasts.Length > 0 ? (int)forecasts.Average(f => f.TemperatureC) : 0;
+    private int MaxTemp => forecasts != null && forecasts.Length > 0 ? forecasts.Max(f => f.TemperatureC) : 0;
+    private int MinTemp => forecasts != null && forecasts.Length > 0 ? forecasts.Min(f => f.TemperatureC) : 0;
+
+    private class WeatherForecast
+    {
+        public DateOnly Date { get; set; }
+        public int TemperatureC { get; set; }
+        public string? Summary { get; set; }
+        public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+    }
+}

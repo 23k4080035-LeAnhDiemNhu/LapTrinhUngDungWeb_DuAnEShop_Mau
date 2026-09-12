@@ -1,0 +1,34 @@
+﻿@page "/dynamic"
+
+<h3>Our First Dynamic Content</h3>
+
+<br />
+<br />
+<button @onclick="HandleBlazorServerClick">Blazor Server</button>
+<button @onclick="HandleBlazorWebAssemplyClick">Blazor WebAssemply</button>
+<br />
+<br />
+<h3>@title</h3>
+<br />
+<div>
+	@content
+</div>
+
+@code {
+	private string title;
+	private string content;
+
+	private void HandleBlazorServerClick()
+	{
+		title = "Blazor Server";
+		content = "Blazor Server sẽ khởi tạo những nội dung động (dynamic content)" +
+						" ở máy chủ (server) và gửi nội dung tới trình duyệt thoong qua giao thức SignalR ";
+	}
+	private void HandleBlazorWebAssemplyClick()
+	{
+		title = "Blazor WebAssemply";
+		content = "Blazor WebAssemply chạy hoàn toàn ở trình duyệt" + 
+				  " và khởi tạo những nội dung dộng ngay tại trình duyệt"; 
+
+	}
+}

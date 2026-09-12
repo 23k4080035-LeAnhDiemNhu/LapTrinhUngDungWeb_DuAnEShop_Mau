@@ -1,0 +1,131 @@
+@page "/counter"
+@rendermode InteractiveServer
+
+<PageTitle>Counter Demo - Blazor .NET 9</PageTitle>
+
+<div class="animate-fade-in" style="max-width: 900px; margin: 0 auto;">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <div>
+            <h2 class="fw-bold text-light mb-1">Bộ Đếm Tương Tác (Counter)</h2>
+            <p class="text-secondary mb-0">Thử nghiệm phản hồi SignalR Server-side rendering theo thời gian thực.</p>
+        </div>
+        <span class="badge-custom badge-mild">Interactive Server Active</span>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <!-- Main Counter Display Card -->
+        <div class="col-md-7">
+            <div class="glass-panel p-5 text-center h-100 d-flex flex-column justify-content-between">
+                <div>
+                    <span class="text-uppercase fw-bold text-secondary" style="font-size: 0.8rem; letter-spacing: 0.1em;">Giá Trị Hiện Tại</span>
+                    <div class="display-1 fw-extrabold my-3 text-gradient">
+                        @currentCount
+                    </div>
+
+                    <!-- Progress Bar based on max count 100 -->
+                    <div class="progress-bar-custom mb-3" style="max-width: 300px; margin: 0 auto;">
+                        <div class="progress-bar-fill" style="width: @Math.Min(100, Math.Max(0, currentCount * 2))%;"></div>
+                    </div>
+                </div>
+
+                <div>
+                    <!-- Step Selector -->
+                    <div class="d-flex align-items-center justify-content-center gap-2 mb-4">
+                        <span class="text-secondary small me-2">Bước nhảy:</span>
+                        <button class="btn btn-sm @(stepSize == 1 ? "btn-gradient-primary" : "btn-glass")" @onclick="() => SetStep(1)">+1</button>
+                        <button class="btn btn-sm @(stepSize == 5 ? "btn-gradient-primary" : "btn-glass")" @onclick="() => SetStep(5)">+5</button>
+                        <button class="btn btn-sm @(stepSize == 10 ? "btn-gradient-primary" : "btn-glass")" @onclick="() => SetStep(10)">+10</button>
+                    </div>
+
+                    <!-- Action Controls -->
+                    <div class="d-flex justify-content-center gap-3">
+                        <button class="btn btn-gradient-primary btn-lg" @onclick="IncrementCount">
+                            + Tăng (@stepSize)
+                        </button>
+                        <button class="btn btn-glass btn-lg" @onclick="DecrementCount">
+                            - Giảm (@stepSize)
+                        </button>
+                        <button class="btn btn-gradient-danger btn-lg" @onclick="ResetCount" title="Đặt lại về 0">
+                            🔄
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- History Log Card -->
+        <div class="col-md-5">
+            <div class="glass-panel p-4 h-100 d-flex flex-column">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <h6 class="fw-bold text-light mb-0">Lịch Sử Thao Tác</h6>
+                    <button class="btn btn-sm text-secondary" @onclick="ClearLogs">Xóa lịch sử</button>
+                </div>
+
+                <div class="flex-grow-1 overflow-auto pe-1" style="max-height: 280px;">
+                    @if (actionLogs.Count == 0)
+                    {
+                        <div class="text-center text-secondary py-5 small">Chưa có thao tác nào. Nhấn nút để bắt đầu!</div>
+                    }
+                    else
+                    {
+                        <ul class="list-unstyled mb-0">
+                            @foreach (var log in actionLogs)
+                            {
+                                <li class="p-2 mb-2 rounded-3 text-light d-flex align-items-center justify-content-between" style="background: rgba(15, 23, 42, 0.5); font-size: 0.85rem;">
+                                    <span>@log.Message</span>
+                                    <span class="text-secondary font-monospace" style="font-size: 0.75rem;">@log.Timestamp.ToString("HH:mm:ss")</span>
+                                </li>
+                            }
+                        </ul>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private int currentCount = 0;
+    private int stepSize = 1;
+    private List<ActionLog> actionLogs = new();
+
+    private void IncrementCount()
+    {
+        currentCount += stepSize;
+        AddLog($"Tăng +{stepSize} (Giá trị: {currentCount})");
+    }
+
+    private void DecrementCount()
+    {
+        currentCount -= stepSize;
+        AddLog($"Giảm -{stepSize} (Giá trị: {currentCount})");
+    }
+
+    private void ResetCount()
+    {
+        currentCount = 0;
+        AddLog("Đặt lại counter về 0");
+    }
+
+    private void SetStep(int step)
+    {
+        stepSize = step;
+    }
+
+    private void ClearLogs()
+    {
+        actionLogs.Clear();
+    }
+
+    private void AddLog(string message)
+    {
+        actionLogs.Insert(0, new ActionLog { Message = message, Timestamp = DateTime.Now });
+        if (actionLogs.Count > 10) actionLogs.RemoveAt(10);
+    }
+
+    private class ActionLog
+    {
+        public string Message { get; set; } = "";
+        public DateTime Timestamp { get; set; }
+    }
+}
