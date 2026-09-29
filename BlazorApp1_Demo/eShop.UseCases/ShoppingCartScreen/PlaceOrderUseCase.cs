@@ -37,5 +37,22 @@ namespace eShop.UseCases.ShoppingCartScreen
             }
             return 0;
         }
+
+        public async Task<string> Execute(Order order)
+        {
+            if (orderService.ValidateCreateOrder(order))
+            {
+                order.DatePlaced = System.DateTime.Now;
+                if (string.IsNullOrEmpty(order.UniqueId))
+                {
+                    order.UniqueId = System.Guid.NewGuid().ToString();
+                }
+                int orderId = orderRepository.CreateOrder(order);
+                await shoppingCart.EmptyAsync();
+                shoppingCartStateStore.UpdateLineItemsCount();
+                return order.UniqueId ?? orderId.ToString();
+            }
+            return string.Empty;
+        }
     }
 }

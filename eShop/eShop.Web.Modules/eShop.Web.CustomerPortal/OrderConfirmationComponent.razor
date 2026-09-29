@@ -1,4 +1,5 @@
 @page "/orderconfirm/{orderId:int}"
+@page "/orderconfirm/{uniqueId}"
 
 @inject eShop.UseCases.ShoppingCartScreen.IViewOrderConfirmationUseCase viewOrderConfirmationUseCase
 
@@ -50,10 +51,20 @@
     [Parameter]
     public int orderId { get; set; }
 
+    [Parameter]
+    public string? uniqueId { get; set; }
+
     private Order? order;
 
     protected override void OnParametersSet()
     {
-        order = viewOrderConfirmationUseCase.Execute(orderId);
+        if (!string.IsNullOrWhiteSpace(uniqueId))
+        {
+            order = viewOrderConfirmationUseCase.Execute(uniqueId);
+        }
+        else if (orderId > 0)
+        {
+            order = viewOrderConfirmationUseCase.Execute(orderId);
+        }
     }
 }

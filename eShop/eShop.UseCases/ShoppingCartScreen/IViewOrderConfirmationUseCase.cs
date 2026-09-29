@@ -5,5 +5,6 @@ namespace eShop.UseCases.ShoppingCartScreen
     public interface IViewOrderConfirmationUseCase
     {
         Order Execute(int orderId);
+        Order Execute(string uniqueId);
     }
 }

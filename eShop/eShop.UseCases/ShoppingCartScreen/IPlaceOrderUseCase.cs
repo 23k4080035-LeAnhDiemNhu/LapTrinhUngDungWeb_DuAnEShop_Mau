@@ -6,5 +6,6 @@ namespace eShop.UseCases.ShoppingCartScreen
     public interface IPlaceOrderUseCase
     {
         Task<int> ExecuteAsync(Order order);
+        Task<string> Execute(Order order);
     }
 }

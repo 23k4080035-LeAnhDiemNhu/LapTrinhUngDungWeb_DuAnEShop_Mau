@@ -6,5 +6,6 @@ namespace eShop.UseCases.ShoppingCartScreen
     public interface IDeleteProductUseCase
     {
         Task<Order> ExecuteAsync(int productId);
+        Task<Order> Execute(int productId);
     }
 }

@@ -11,12 +11,27 @@ namespace eShop.StateStore.DI
             this.listeners += listener;
         }
 
+        public void AddStateChangeListener(Action listener)
+        {
+            this.listeners += listener;
+        }
+
         public void RemoveStateChangeListeners(Action listener)
         {
             this.listeners -= listener;
         }
 
+        public void RemoveStateChangeListener(Action listener)
+        {
+            this.listeners -= listener;
+        }
+
         public void BroadCastStateChange()
+        {
+            this.listeners?.Invoke();
+        }
+
+        public void BroadcastStateChange()
         {
             this.listeners?.Invoke();
         }

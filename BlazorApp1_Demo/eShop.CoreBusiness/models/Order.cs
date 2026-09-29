@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 
 namespace eShop.CoreBusiness.models
@@ -13,35 +12,26 @@ namespace eShop.CoreBusiness.models
         public DateTime? DateProcessing { get; set; }
         public DateTime? DateProcessed { get; set; }
 
-        [Required(ErrorMessage = "Customer Name is required.")]
         public string CustomerName { get; set; } = string.Empty;
-
-        [Required(ErrorMessage = "Street Address is required.")]
         public string CustomerAddress { get; set; } = string.Empty;
-
-        [Required(ErrorMessage = "City is required.")]
         public string CustomerCity { get; set; } = string.Empty;
-
-        [Required(ErrorMessage = "State/Province is required.")]
         public string CustomerStateProvince { get; set; } = string.Empty;
-
-        [Required(ErrorMessage = "Zip Code is required.")]
         public string CustomerZipCode { get; set; } = string.Empty;
-
-        [Required(ErrorMessage = "Country is required.")]
         public string CustomerCountry { get; set; } = string.Empty;
 
         public string AdminUser { get; set; } = string.Empty;
 
         public List<OrderLineItem> LineItems { get; set; } = new List<OrderLineItem>();
+        public string UniqueId { get; set; } = string.Empty;
 
         // Domain Logic Helper Methods
-        public void AddProduct(int productId, int qty, double price)
+        public void AddProduct(int productId, int qty, double price, Product? product = null)
         {
             var item = LineItems.FirstOrDefault(x => x.ProductId == productId);
             if (item != null)
             {
                 item.Quantity += qty;
+                if (product != null) item.Product = product;
             }
             else
             {
@@ -50,7 +40,8 @@ namespace eShop.CoreBusiness.models
                     ProductId = productId, 
                     Quantity = qty, 
                     Price = price, 
-                    OrderId = OrderId 
+                    OrderId = OrderId,
+                    Product = product
                 });
             }
         }

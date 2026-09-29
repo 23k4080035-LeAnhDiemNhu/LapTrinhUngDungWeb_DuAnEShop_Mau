@@ -22,6 +22,11 @@ namespace eShop.StateStore.DI
             return 0;
         }
 
+        public async Task<int> GetItemCount()
+        {
+            return await GetItemsCount();
+        }
+
         public void UpdateLineItemsCount()
         {
             BroadCastStateChange();

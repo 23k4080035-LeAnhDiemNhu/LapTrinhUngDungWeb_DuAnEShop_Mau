@@ -22,14 +22,16 @@ namespace eShop.CoreBusiness.models
         public string AdminUser { get; set; } = string.Empty;
 
         public List<OrderLineItem> LineItems { get; set; } = new List<OrderLineItem>();
+        public string UniqueId { get; set; } = string.Empty;
 
         // Domain Logic Helper Methods
-        public void AddProduct(int productId, int qty, double price)
+        public void AddProduct(int productId, int qty, double price, Product? product = null)
         {
             var item = LineItems.FirstOrDefault(x => x.ProductId == productId);
             if (item != null)
             {
                 item.Quantity += qty;
+                if (product != null) item.Product = product;
             }
             else
             {
@@ -38,7 +40,8 @@ namespace eShop.CoreBusiness.models
                     ProductId = productId, 
                     Quantity = qty, 
                     Price = price, 
-                    OrderId = OrderId 
+                    OrderId = OrderId,
+                    Product = product
                 });
             }
         }

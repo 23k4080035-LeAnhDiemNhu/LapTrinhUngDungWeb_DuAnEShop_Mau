@@ -40,14 +40,35 @@ namespace eShop.DataStore.HardCoded
             }
         }
 
+        public IEnumerable<Order> GetOrders()
+        {
+            return orders.Values;
+        }
+
         public IEnumerable<Order> GetOutstandingOrders()
         {
             return orders.Values.Where(x => !x.DateProcessed.HasValue).ToList();
         }
 
+        public IEnumerable<Order> GetOutStandingOrders()
+        {
+            return GetOutstandingOrders();
+        }
+
         public IEnumerable<Order> GetProcessedOrders()
         {
             return orders.Values.Where(x => x.DateProcessed.HasValue).ToList();
+        }
+
+        public Order? GetOrderByUniqueId(string uniqueId)
+        {
+            return orders.Values.FirstOrDefault(x => x.UniqueId == uniqueId);
+        }
+
+        public IEnumerable<OrderLineItem> GetLineItemsByOrderId(int orderId)
+        {
+            var order = GetOrder(orderId);
+            return order?.LineItems ?? new List<OrderLineItem>();
         }
     }
 }

@@ -106,5 +106,37 @@ namespace eShop.DataStore.SQL
             }
             return orders;
         }
+
+        public IEnumerable<Order> GetOrders()
+        {
+            using IDbConnection db = new SqlConnection(connectionString);
+            return db.Query<Order>("SELECT * FROM [Order]").ToList();
+        }
+
+        public IEnumerable<Order> GetOutStandingOrders()
+        {
+            return GetOutstandingOrders();
+        }
+
+        public Order? GetOrderByUniqueId(string uniqueId)
+        {
+            using IDbConnection db = new SqlConnection(connectionString);
+            var sqlOrder = "SELECT * FROM [Order] WHERE UniqueId = @UniqueId";
+            var order = db.QueryFirstOrDefault<Order>(sqlOrder, new { UniqueId = uniqueId });
+
+            if (order != null && order.OrderId.HasValue)
+            {
+                order.LineItems = GetLineItemsByOrderId(order.OrderId.Value).ToList();
+            }
+
+            return order;
+        }
+
+        public IEnumerable<OrderLineItem> GetLineItemsByOrderId(int orderId)
+        {
+            using IDbConnection db = new SqlConnection(connectionString);
+            var sqlItems = "SELECT * FROM OrderLineItem WHERE OrderId = @OrderId";
+            return db.Query<OrderLineItem>(sqlItems, new { OrderId = orderId }).ToList();
+        }
     }
 }

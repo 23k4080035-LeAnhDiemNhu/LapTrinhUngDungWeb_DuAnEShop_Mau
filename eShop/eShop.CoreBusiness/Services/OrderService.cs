@@ -10,15 +10,24 @@ namespace eShop.CoreBusiness.Services
         {
             if (order == null) return false;
 
-            if (string.IsNullOrWhiteSpace(order.CustomerName) ||
-                string.IsNullOrWhiteSpace(order.CustomerAddress) ||
-                string.IsNullOrWhiteSpace(order.CustomerCity) ||
-                string.IsNullOrWhiteSpace(order.CustomerStateProvince) ||
-                string.IsNullOrWhiteSpace(order.CustomerCountry))
+            return ValidateCustomerInfomation(
+                order.CustomerName,
+                order.CustomerAddress,
+                order.CustomerCity,
+                order.CustomerStateProvince,
+                order.CustomerCountry);
+        }
+
+        public bool ValidateCustomerInfomation(string name, string address, string city, string province, string country)
+        {
+            if (string.IsNullOrWhiteSpace(name) ||
+                string.IsNullOrWhiteSpace(address) ||
+                string.IsNullOrWhiteSpace(city) ||
+                string.IsNullOrWhiteSpace(province) ||
+                string.IsNullOrWhiteSpace(country))
             {
                 return false;
             }
-
             return true;
         }
 

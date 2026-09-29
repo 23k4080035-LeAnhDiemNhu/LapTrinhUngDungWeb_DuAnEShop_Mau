@@ -22,5 +22,10 @@ namespace eShop.UseCases.ShoppingCartScreen
             this.shoppingCartStateStore.UpdateLineItemsCount();
             return order;
         }
+
+        public async Task<Order> Execute(int productId)
+        {
+            return await ExecuteAsync(productId);
+        }
     }
 }
