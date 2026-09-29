@@ -1,0 +1,51 @@
+@page "/cart"
+
+@inject eShop.UseCases.ShoppingCartScreen.IViewShoppingCartUseCase viewShoppingCartUseCase
+@inject eShop.UseCases.ShoppingCartScreen.IUpdateQuantityUseCase updateQuantityUseCase
+@inject eShop.UseCases.ShoppingCartScreen.IDeleteProductUseCase deleteProductUseCase
+
+<h3>Shopping Cart</h3>
+<hr />
+
+@if (order != null && order.LineItems != null && order.LineItems.Any())
+{
+    <div class="row">
+        <div class="col-md-8">
+            <OrderLineItemComponent Order="order" 
+                                    OnQuantityChange="HandleQuantityChange" 
+                                    OnDeleteProduct="HandleDeleteProduct" />
+        </div>
+        <div class="col-md-4">
+            <OrderSummaryComponent Order="order"></OrderSummaryComponent>
+        </div>
+    </div>
+}
+else
+{
+    <div class="alert alert-info">
+        Your shopping cart is empty. <NavLink href="products" class="alert-link">Browse products here</NavLink>.
+    </div>
+}
+
+@code {
+    private Order? order;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            order = await viewShoppingCartUseCase.Execute();
+            StateHasChanged();
+        }
+    }
+
+    private async Task HandleQuantityChange(OrderLineItem item)
+    {
+        order = await updateQuantityUseCase.ExecuteAsync(item.ProductId, item.Quantity);
+    }
+
+    private async Task HandleDeleteProduct(OrderLineItem item)
+    {
+        order = await deleteProductUseCase.ExecuteAsync(item.ProductId);
+    }
+}

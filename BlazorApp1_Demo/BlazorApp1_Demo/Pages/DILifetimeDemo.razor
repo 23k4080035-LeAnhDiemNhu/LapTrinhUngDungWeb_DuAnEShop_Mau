@@ -1,0 +1,44 @@
+@page "/dilifetime"
+@using BlazorApp1_Demo.Data
+@inject ICustomerService customerService
+@implements IDisposable
+
+<h3>Dependency Injection Lifetime Management</h3>
+
+<p>
+    <b>Guid (Service Instance Unique ID):</b> <span class="badge bg-info text-dark">@customerService.Uid</span>
+</p>
+
+@if (customer != null)
+{
+    <p>
+        <b>Customer Info (ID = 2):</b> <span class="badge bg-success">@customer.Name</span>
+    </p>
+}
+else
+{
+    <p>Loading customer information...</p>
+}
+
+<div class="alert alert-secondary mt-3">
+    <h5>Lifetime Behavior Overview:</h5>
+    <ul>
+        <li><b>AddTransient:</b> Tạo mới instance mỗi lần được inject hoặc khi chuyển đổi giữa các component/trang.</li>
+        <li><b>AddSingleton:</b> Tạo 1 instance duy nhất dùng chung cho toàn bộ ứng dụng/người dùng trên server.</li>
+        <li><b>AddScoped:</b> Tạo 1 instance duy nhất cho mỗi kết nối/session người dùng (SignalR circuit). Giữ nguyên Guid khi chuyển trang, thay đổi Guid khi Refresh lại trình duyệt.</li>
+    </ul>
+</div>
+
+@code {
+    private Customer? customer;
+
+    protected override void OnInitialized()
+    {
+        customer = customerService.GetCustomerById(2);
+    }
+
+    public void Dispose()
+    {
+        // Cleanup resources when component is unmounted
+    }
+}

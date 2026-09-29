@@ -1,0 +1,30 @@
+@if (Order != null && Order.LineItems != null)
+{
+    var totalItems = Order.LineItems.Sum(x => x.Quantity);
+    var totalPrice = Order.LineItems.Sum(x => x.Price * x.Quantity);
+
+    <div class="card shadow-sm">
+        <div class="card-header bg-dark text-white">
+            <h5 class="card-title mb-0">Order Summary</h5>
+        </div>
+        <div class="card-body">
+            <div class="d-flex justify-content-between mb-2">
+                <span>Total Items:</span>
+                <span class="fw-bold">@totalItems</span>
+            </div>
+            <div class="d-flex justify-content-between mb-3 fs-5">
+                <span>Total Amount:</span>
+                <span class="fw-bold text-danger">@totalPrice.ToString("c")</span>
+            </div>
+            <hr />
+            <NavLink href="placeorder" class="btn btn-success w-100 fw-bold">
+                Proceed to Checkout
+            </NavLink>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public Order Order { get; set; } = default!;
+}

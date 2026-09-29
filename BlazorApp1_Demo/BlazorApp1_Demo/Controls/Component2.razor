@@ -1,0 +1,9 @@
+<div class="ms-5">
+	<h3>Component2</h3>
+	Counter: @CounterValue
+</div>
+
+@code {
+	[CascadingParameter(Name = "Counter")]
+	public int CounterValue { get; set; }
+}

@@ -1,0 +1,52 @@
+@page "/orderconfirm/{OrderId:int}"
+
+@inject eShop.UseCases.ShoppingCartScreen.IViewOrderConfirmationUseCase viewOrderConfirmationUseCase
+
+<div class="alert alert-success shadow-sm p-4 text-center my-4">
+    <h2 class="alert-heading text-success mb-2">🎉 Order Confirmed!</h2>
+    <p class="fs-5 mb-0">Thank you for your order. Your Order Reference ID is <strong>#@OrderId</strong>.</p>
+</div>
+
+@if (order != null && order.Id.HasValue)
+{
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Shipping & Delivery Details</h5>
+        </div>
+        <div class="card-body">
+            <p class="mb-1"><strong>Customer Name:</strong> @order.CustomerName</p>
+            <p class="mb-1"><strong>Address:</strong> @order.CustomerAddress</p>
+            <p class="mb-1"><strong>City, State, Zip:</strong> @order.CustomerCity, @order.CustomerStateProvince @order.CustomerZipCode</p>
+            <p class="mb-0"><strong>Country:</strong> @order.CustomerCountry</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <h5 class="mb-3">Items Ordered</h5>
+            <OrderLineItemComponent Order="order" IsReadOnly="true" />
+        </div>
+        <div class="col-md-4">
+            <h5 class="mb-3">Order Total</h5>
+            <OrderSummaryComponent Order="order" />
+        </div>
+    </div>
+
+    <div class="text-center mt-4">
+        <NavLink href="products" class="btn btn-outline-primary btn-lg">
+            <span class="oi oi-shopping-bag"></span> Continue Shopping
+        </NavLink>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public int OrderId { get; set; }
+
+    private Order? order;
+
+    protected override void OnParametersSet()
+    {
+        order = viewOrderConfirmationUseCase.Execute(OrderId);
+    }
+}

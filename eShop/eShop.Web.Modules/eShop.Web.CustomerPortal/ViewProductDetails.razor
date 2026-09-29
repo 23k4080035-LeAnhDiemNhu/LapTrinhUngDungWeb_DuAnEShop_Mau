@@ -1,0 +1,58 @@
+@page "/product/{id:int}"
+
+@inject IViewProduct ViewProductUseCase
+@inject IAddProductToCartUseCase AddProductToCartUseCase
+@inject NavigationManager NavigationManager
+
+<h3>Product Details</h3>
+
+@if (product != null)
+{
+    <div class="card" style="width: 18rem;">
+        <div class="card-body">
+            @if (!string.IsNullOrEmpty(product.ImageLink))
+            {
+                <img src="@product.ImageLink" class="card-img-top" alt="@product.Name" style="max-height: 250px; object-fit: cover;" />
+            }
+            <h5 class="card-title">@product.Name</h5>
+            <h6 class="card-subtitle mb-2 text-muted">@product.Brand</h6>
+            <hr />
+            <p>
+                Price: <label style="color:darkred">@product.Price.ToString("c")</label>
+            </p>
+            <p class="card-text">@product.Description</p>
+            <button type="button" class="btn btn-primary" @onclick="AddToCart">Add to Cart</button>
+        </div>
+    </div>
+    <br />
+    <NavLink href="products" class="btn btn-secondary">Back to Products Page</NavLink>
+}
+else
+{
+    <p>Loading product details...</p>
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private Product? product;
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+        if (Id > 0)
+        {
+            product = ViewProductUseCase.Execute(Id);
+        }
+    }
+
+    private async Task AddToCart()
+    {
+        if (product != null)
+        {
+            await AddProductToCartUseCase.ExecuteAsync(product.Id);
+            NavigationManager.NavigateTo("/cart");
+        }
+    }
+}

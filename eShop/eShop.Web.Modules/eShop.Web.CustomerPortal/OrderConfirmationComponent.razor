@@ -1,0 +1,59 @@
+@page "/orderconfirm/{orderId:int}"
+
+@inject eShop.UseCases.ShoppingCartScreen.IViewOrderConfirmationUseCase viewOrderConfirmationUseCase
+
+<h3>Order Confirmation</h3>
+<br />
+
+@if (order != null)
+{
+    <p>
+        <b>Shipping Info:</b>
+    </p>
+    <p>@order.CustomerName</p>
+    <p>@order.CustomerAddress</p>
+    <p>@order.CustomerCity</p>
+    <p>@order.CustomerStateProvince</p>
+    <p>@order.CustomerCountry</p>
+    <br />
+
+    <div class="w-50">
+        <OrderSummaryComponent Order="order" />
+    </div>
+    <br />
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Product Name</th>
+                <th>Quantity</th>
+                <th>Price</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (order.LineItems != null)
+            {
+                @foreach (var item in order.LineItems)
+                {
+                    <tr>
+                        <td>@(item.Product?.Name ?? $"Product #{item.ProductId}")</td>
+                        <td>@item.Quantity</td>
+                        <td>@item.Price.ToString("c")</td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    [Parameter]
+    public int orderId { get; set; }
+
+    private Order? order;
+
+    protected override void OnParametersSet()
+    {
+        order = viewOrderConfirmationUseCase.Execute(orderId);
+    }
+}

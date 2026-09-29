@@ -1,0 +1,71 @@
+@page "/forms"
+@using System.ComponentModel.DataAnnotations
+
+<h3>Forms And Validations Component</h3>
+
+<EditForm Model="person" OnValidSubmit="ValidFormSubmitted">
+	<DataAnnotationsValidator />
+	<ValidationSummary />
+
+	<label>
+		First Name: <br />
+		<InputText id="fname" @bind-Value="person.FirstName" />
+	</label>
+	<br />
+	<br />
+
+	<label>
+		Last Name: <br />
+		<InputText id="lname" @bind-Value="person.LastName" />
+	</label>
+	<br />
+	<br />
+
+	<label>
+		Employee Number: <br />
+		<InputNumber id="emp_number" @bind-Value="person.EmployeeNumber" />
+	</label>
+	<br />
+	<br />
+
+	<label>
+		Email: <br />
+		<InputText id="email" @bind-Value="person.Email" />
+	</label>
+	<br />
+	<br />
+
+	<input type="submit" value="Submit" class="btn btn-primary" />
+</EditForm>
+
+<br />
+@submitted
+
+@code {
+	private Person person = new Person();
+	private string submitted = "";
+
+	private void ValidFormSubmitted()
+	{
+		submitted = "Information is submitted";
+	}
+
+	public class Person
+	{
+		[Required]
+		[StringLength(100)]
+		public string FirstName { get; set; } = string.Empty;
+
+		[Required]
+		[StringLength(100)]
+		public string LastName { get; set; } = string.Empty;
+
+		[Required]
+		[Range(1, 1000)]
+		public int EmployeeNumber { get; set; }
+
+		[Required]
+		[EmailAddress]
+		public string Email { get; set; } = string.Empty;
+	}
+}

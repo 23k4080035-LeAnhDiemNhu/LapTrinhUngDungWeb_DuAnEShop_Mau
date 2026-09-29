@@ -1,0 +1,21 @@
+@if(this.Product != null) 
+{
+    <tr>
+        <td>
+            <NavLink href="@($"/product/{Product.Id}")" class="fw-bold text-decoration-none">
+                @Product.Name
+            </NavLink>
+        </td>
+        <td>
+            <span class="badge bg-secondary">@Product.Brand</span>
+        </td>
+        <td class="text-danger fw-semibold">
+            @Product.Price.ToString("c") 
+        </td>
+    </tr>
+}
+
+@code {
+    [Parameter]
+    public Product Product { get; set; } = default!;
+}

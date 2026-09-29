@@ -1,0 +1,111 @@
+@page "/orderdetail/{orderId:int}"
+
+@inject IViewOrderDetailUseCase viewOrderDetailUseCase
+@inject IProcessOrderUseCase processOrderUseCase
+@inject NavigationManager navigationManager
+
+<h3>Order Detail - #@orderId</h3>
+<hr />
+
+@if (order != null && order.OrderId.HasValue && order.OrderId.Value > 0)
+{
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4 shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">Customer & Shipping Information</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Customer Name:</strong> @order.CustomerName</p>
+                    <p><strong>Address:</strong> @order.CustomerAddress</p>
+                    <p><strong>City:</strong> @order.CustomerCity</p>
+                    <p><strong>State / Province:</strong> @order.CustomerStateProvince</p>
+                    <p><strong>Zip Code:</strong> @order.CustomerZipCode</p>
+                    <p><strong>Country:</strong> @order.CustomerCountry</p>
+                </div>
+            </div>
+
+            <div class="card mb-4 shadow-sm">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="card-title mb-0">Order Status</h5>
+                </div>
+                <div class="card-body">
+                    <p>
+                        <strong>Date Placed:</strong> 
+                        @(order.DatePlaced.HasValue ? order.DatePlaced.Value.ToLocalTime().ToString("g") : "N/A")
+                    </p>
+                    <p>
+                        <strong>Date Processed:</strong> 
+                        @if (order.DateProcessed.HasValue)
+                        {
+                            <span class="badge bg-success">Processed on @order.DateProcessed.Value.ToLocalTime().ToString("g")</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-warning text-dark">Outstanding / Pending</span>
+                        }
+                    </p>
+                    @if (!string.IsNullOrEmpty(order.AdminUser))
+                    {
+                        <p><strong>Processed By Admin:</strong> @order.AdminUser</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <h5 class="mb-3">Order Items</h5>
+            <OrderLineItemComponent Order="order" IsReadOnly="true" />
+            <OrderSummaryComponent Order="order" />
+
+            <div class="mt-4 d-flex justify-content-between">
+                <NavLink href="outstandingorders" class="btn btn-outline-secondary">
+                    <span class="oi oi-arrow-left"></span> Back to Outstanding Orders
+                </NavLink>
+
+                @if (!order.DateProcessed.HasValue)
+                {
+                    <button class="btn btn-success fw-bold" @onclick="HandleProcess">
+                        <span class="oi oi-check"></span> Mark Order Processed
+                    </button>
+                }
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="alert alert-danger">
+        Order not found!
+    </div>
+    <NavLink href="outstandingorders" class="btn btn-secondary">Back to Outstanding Orders</NavLink>
+}
+
+@code {
+    [Parameter]
+    public int orderId { get; set; }
+
+    private Order? order;
+
+    protected override void OnParametersSet()
+    {
+        LoadOrder();
+    }
+
+    private void LoadOrder()
+    {
+        order = viewOrderDetailUseCase.Execute(orderId);
+    }
+
+    private void HandleProcess()
+    {
+        if (order != null && order.OrderId.HasValue)
+        {
+            bool success = processOrderUseCase.Execute(order.OrderId.Value, "Admin");
+            if (success)
+            {
+                LoadOrder();
+            }
+        }
+    }
+}

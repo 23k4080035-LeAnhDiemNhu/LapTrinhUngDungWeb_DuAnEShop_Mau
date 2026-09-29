@@ -1,0 +1,46 @@
+@using eShop.UseCases.PluginInterfaces.StateStore
+@inject IShoppingCartStateStore shoppingCartStateStore
+@implements IDisposable
+
+<NavLink class="nav-link" href="cart">
+    <span class="oi oi-cart" aria-hidden="true"></span> Shopping Cart (@count)
+</NavLink>
+
+@code {
+    private int count = 0;
+
+    protected override void OnInitialized()
+    {
+        shoppingCartStateStore.AddStateChangeListeners(HandleStateChange);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await UpdateCount();
+        }
+    }
+
+    private async void HandleStateChange()
+    {
+        await UpdateCount();
+    }
+
+    private async Task UpdateCount()
+    {
+        try
+        {
+            count = await shoppingCartStateStore.GetItemsCount();
+            await InvokeAsync(StateHasChanged);
+        }
+        catch (InvalidOperationException)
+        {
+        }
+    }
+
+    public void Dispose()
+    {
+        shoppingCartStateStore.RemoveStateChangeListeners(HandleStateChange);
+    }
+}

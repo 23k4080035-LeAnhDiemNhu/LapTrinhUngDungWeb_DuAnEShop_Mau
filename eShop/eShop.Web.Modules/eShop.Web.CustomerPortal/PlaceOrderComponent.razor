@@ -1,0 +1,88 @@
+@page "/placeorder"
+
+@using Microsoft.AspNetCore.Components.Forms
+@inject eShop.UseCases.ShoppingCartScreen.IViewShoppingCartUseCase viewShoppingCartUseCase
+@inject eShop.UseCases.ShoppingCartScreen.IPlaceOrderUseCase placeOrderUseCase
+@inject NavigationManager navigationManager
+
+<h3>Checkout & Place Order</h3>
+<hr />
+
+@if (order != null)
+{
+    <EditForm Model="order" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="row">
+            <div class="col-md-6">
+                <h4 class="mb-3">Customer Information</h4>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Customer Name</label>
+                    <InputText class="form-control" @bind-Value="order.CustomerName" placeholder="Enter your full name" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Street Address</label>
+                    <InputText class="form-control" @bind-Value="order.CustomerAddress" placeholder="Enter street address" />
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">City</label>
+                        <InputText class="form-control" @bind-Value="order.CustomerCity" placeholder="City" />
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">State / Province</label>
+                        <InputText class="form-control" @bind-Value="order.CustomerStateProvince" placeholder="State" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">Zip Code</label>
+                        <InputText class="form-control" @bind-Value="order.CustomerZipCode" placeholder="Zip code" />
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-semibold">Country</label>
+                        <InputText class="form-control" @bind-Value="order.CustomerCountry" placeholder="Country" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <h4 class="mb-3">Order Summary</h4>
+                <OrderLineItemComponent Order="order" IsReadOnly="true" />
+                <OrderSummaryComponent Order="order" />
+                
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-success btn-lg w-100 fw-bold">
+                        <span class="oi oi-check"></span> Place Order Now
+                    </button>
+                </div>
+            </div>
+        </div>
+    </EditForm>
+}
+
+@code {
+    private Order? order;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            order = await viewShoppingCartUseCase.Execute();
+            StateHasChanged();
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        if (order != null)
+        {
+            int orderId = await placeOrderUseCase.ExecuteAsync(order);
+            if (orderId > 0)
+            {
+                navigationManager.NavigateTo($"/orderconfirm/{orderId}");
+            }
+        }
+    }
+}
